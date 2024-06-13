@@ -35,11 +35,6 @@ FullTradeReporter is a tool designed to parse and analyze trading performance da
 1.  Open a terminal or command prompt.
 2.  Navigate to the project directory where `main.py` is located.
 3.  Run the following command:
-    
-    arduino
-    
-    Copy code
-    
     `python run main.py` 
     
 
