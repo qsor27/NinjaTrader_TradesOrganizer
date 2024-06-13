@@ -27,11 +27,6 @@ FullTradeReporter is a tool designed to parse and analyze trading performance da
     -   Right-click again and choose `Export as .csv`.
     -   Ensure the file format is `.csv` and not `.xlsx`.
     -   Save the `.csv` file in the following directory:
-        
-        bash
-        
-        Copy code
-        
         `fulltradereporter/data/TradingPerformance` 
         
 
