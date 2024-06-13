@@ -32,7 +32,7 @@ FullTradeReporter is a tool designed to parse and analyze trading performance da
         
         Copy code
         
-        `fulltradereporter/parser/NinjaTrader/data/TradingPerformance` 
+        `fulltradereporter/data/TradingPerformance` 
         
 
 ## Running the Analysis Script
