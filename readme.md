@@ -28,10 +28,6 @@ FullTradeReporter is a tool designed to parse and analyze trading performance da
     -   Ensure the file format is `.csv` and not `.xlsx`.
     -   Save the `.csv` file in the following directory:
         
-        bash
-        
-        Copy code
-        
         `fulltradereporter/parser/NinjaTrader/data/TradingPerformance` 
         
 
@@ -39,14 +35,10 @@ FullTradeReporter is a tool designed to parse and analyze trading performance da
 
 1.  Open a terminal or command prompt.
 2.  Navigate to the project directory where `main.py` is located.
-3.  Run the following command:
-    
-    arduino
-    
-    Copy code
-    
+3.  Run the following command: 
     `python run main.py` 
-    
+
+
 
 ## Additional Information
 
