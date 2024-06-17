@@ -1,4 +1,4 @@
-﻿
+﻿﻿
 # FullTradeReporter Readme
 
 ## Overview
@@ -27,16 +27,18 @@ FullTradeReporter is a tool designed to parse and analyze trading performance da
     -   Right-click again and choose `Export as .csv`.
     -   Ensure the file format is `.csv` and not `.xlsx`.
     -   Save the `.csv` file in the following directory:
-        `fulltradereporter/data/TradingPerformance` 
+        
+        `fulltradereporter/parser/NinjaTrader/data/TradingPerformance` 
         
 
 ## Running the Analysis Script
 
 1.  Open a terminal or command prompt.
 2.  Navigate to the project directory where `main.py` is located.
-3.  Run the following command:
+3.  Run the following command: 
     `python run main.py` 
-    
+
+
 
 ## Additional Information
 

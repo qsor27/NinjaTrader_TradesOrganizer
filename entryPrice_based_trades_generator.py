@@ -63,44 +63,33 @@ class Trade:
         if not entry_exit_objects:
             raise ValueError("Trade must have at least one EntryExit object.")
 
-        # Calculate total Qty and average Entry price
-        total_qty = sum(obj.Qty for obj in entry_exit_objects)
-        total_price_qty = sum(obj.Entry_price * obj.Qty for obj in entry_exit_objects)
-        self.Qty = total_qty
-        self.Avg_entry_price = total_price_qty / total_qty
+        # Calculate total Qty
+        self.Qty = sum(obj.Qty for obj in entry_exit_objects)
 
-        # Combine and aggregate details of each entry
-        self.Entries = self.aggregate_entries(entry_exit_objects)
-
-        # Combine and aggregate exits from all EntryExit objects into one list
+        # Combine Exits from all EntryExit objects into one list
         self.Exits = self.get_exits(entry_exit_objects)
 
         # Set other properties from the reference EntryExit object
         reference_object = entry_exit_objects[0]
         self.Account = reference_object.Account
         self.Market_pos = reference_object.Market_pos
+        self.Entry_price = reference_object.Entry_price
         self.Entry_time = reference_object.Entry_time
         self.Instrument = reference_object.Instrument
 
-    def aggregate_entries(self, entry_exits):
-        entry_dict = defaultdict(int)
-        for obj in entry_exits:
-            entry_dict[obj.Entry_price] += obj.Qty
-        return [{"price": price, "Qty": qty} for price, qty in entry_dict.items()]
-
     def get_exits(self, entry_exits):
-        exit_dict = defaultdict(int)
-        for obj in entry_exits:
-            exit_dict[obj.Exit_price] += obj.Qty
-
         Exits = []
-        for price, qty in exit_dict.items():
-            profit = sum(obj.Profit for obj in entry_exits if obj.Exit_price == price)
-            exit_detail = {"price": price, "Qty": qty, "Pnl": profit}
-            exit_type = ExitType.TAKE_PROFIT.value if profit > 0 else ExitType.STOP.value
-            Exits.append(f'{exit_type}: {exit_detail}')
+        if len(entry_exits) > 1:
+            for i in range(len(entry_exits)):
+                exit = entry_exits[i].Exit
+                Exits.append(f'{entry_exits[i].get_exit_type().value}{i+1}: {exit}')
+            return Exits
+        else:
+            close = entry_exits[0].Exit
+            Exits.append(f'{entry_exits[0].get_exit_type().value} {close}')
+            return Exits
 
-        return Exits
+
 
     @classmethod
     def from_entry_exit_objects(cls, entry_exit_objects):
@@ -118,25 +107,34 @@ class Trade:
         return cls.from_entry_exit_objects(entry_exit_objects)
 
     def __repr__(self):
-        return f"Account={self.Account}, Market_pos={self.Market_pos}, Avg_entry_price={self.Avg_entry_price}, " \
+        return f"Account={self.Account}, Market_pos={self.Market_pos}, Entry_price={self.Entry_price}, " \
                f"Qty={self.Qty}, Entry_time={self.Entry_time}, Instrument={self.Instrument}, " \
-               f"Exits={self.Exits}, Entries={self.Entries}\n"
+               f"Exits={self.Exits}\n"
 
 
 def create_trades(entry_exits):
     unique_sets = {}
 
     for entry_exit in entry_exits:
-        key = (entry_exit.Entry_time, entry_exit.Instrument)
+        key = (entry_exit.Entry_time, entry_exit.Entry_price, entry_exit.Instrument)
 
         if key not in unique_sets:
             unique_sets[key] = [entry_exit]
         else:
-            unique_sets[key].append(entry_exit)
+            exit_index = -1
+            idx = 0
+            for line in unique_sets[key]:
+                if line.Exit_price == entry_exit.Exit_price:
+                    exit_index = idx
+                idx += 1
 
-    trades = [Trade(entry_exits) for entry_exits in unique_sets.values()]
+            if exit_index < 0:
+                unique_sets[key].append(entry_exit)
+            else:
+                unique_sets[key][exit_index].Qty += entry_exit.Qty
+
+    trades = [Trade(entry_exit) for entry_exit in unique_sets.values()]
     return trades
-
 
 
 def parse_ninjatrader_csv(directory_path):
@@ -193,14 +191,12 @@ def trade_to_dict(trade):
     return {
         'Account': trade.Account,
         'Market_pos': trade.Market_pos,
-        'Avg_entry_price': trade.Avg_entry_price,
+        'Entry_price': trade.Entry_price,
         'Qty': trade.Qty,
         'Entry_time': trade.Entry_time,
         'Instrument': trade.Instrument,
-        'Exits': trade.Exits,
-        'Entries': trade.Entries
+        'Exits': trade.Exits
     }
-
 
 
 # Write trades to a JSON file
@@ -214,8 +210,7 @@ with open(output_file_path, 'w') as json_file:
 print(f"Trades details written to {output_file_path}")
 
 with open(output_csv_path, 'w', newline='') as csv_file:
-    fieldnames = ['Account', 'Market_pos', 'Avg_entry_price', 'Qty', 'Entry_time', 'Instrument', 'Exits', 'Entries']
-
+    fieldnames = ['Account', 'Market_pos', 'Entry_price', 'Qty', 'Entry_time', 'Instrument', 'Exits']
     writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
     # Write the header
