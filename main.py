@@ -1,6 +1,7 @@
 import json
 from collections import defaultdict
 from enum import Enum
+from datetime import datetime
 
 # Specify the directory path
 directory_path = 'data/NinjaTrader/TradePerformance'
@@ -204,9 +205,13 @@ def trade_to_dict(trade):
 
 
 # Write trades to a JSON file
-output_file_path = 'trades.json'
+todaysdate = datetime.today()
+date_string = todaysdate.strftime('%Y-%m-%d')
 
-output_csv_path = "trades.csv"
+output_file_path = date_string + 'trades.json'
+
+output_csv_path = date_string + "trades.csv"
+
 with open(output_file_path, 'w') as json_file:
     trades_data = [trade_to_dict(trade) for trade in trades]
     json.dump(trades_data, json_file, indent=2)
